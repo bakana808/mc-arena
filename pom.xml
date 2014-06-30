@@ -31,19 +31,6 @@
     </developers>
 
     <contributors>
-        <contributor>
-            <name>MetaSteel</name>
-            <roles>
-                <role>contributor</role>
-            </roles>
-        </contributor>
-        <contributor>
-            <name>Dan Schmitt</name>
-            <roles>
-                <role>contributor</role>
-            </roles>
-        </contributor>
     </contributors>
-
 
 </project>
