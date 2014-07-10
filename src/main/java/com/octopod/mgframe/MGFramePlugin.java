@@ -1,6 +1,8 @@
 package com.octopod.mgframe;
 
 import com.octopod.mgframe.abstraction.BukkitInterface;
+import com.octopod.mgframe.abstraction.MinecraftInterface;
+import com.octopod.mgframe.world.WorldManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -11,7 +13,9 @@ public class MGFramePlugin extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
-		MGFrame.setInterface(new BukkitInterface());
+		MinecraftInterface mcInterface = new BukkitInterface();
+		MGFrame.setInterface(mcInterface);
+		MGFrame.setWorldManager(new WorldManager(mcInterface.getWorlds()));
 	}
 
 	@Override
