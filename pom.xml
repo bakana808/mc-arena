@@ -35,6 +35,10 @@
 
     <repositories>
         <repository>
+            <id>sk89q-mvn2</id>
+            <url>http://mvn2.sk89q.com/repo</url>
+        </repository>
+        <repository>
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public/</url>
         </repository>
@@ -44,7 +48,17 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.7.5-R0.1-SNAPSHOT</version>
+            <version>1.7.10-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.octopod</groupId>
+            <artifactId>octal</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>commandhelper</artifactId>
+            <version>3.3.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
