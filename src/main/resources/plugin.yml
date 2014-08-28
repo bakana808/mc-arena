@@ -1,11 +1,5 @@
-name: NetworkPlus
+name: MGFrame
 main: com.octopod.mgframe.MGFramePlugin
 version: 0.0.1
 softdepend: ['CommandHelper']
 permissions:
-    network.server.connect:
-        default: true
-    network.server.list:
-        default: true
-    network.main:
-        default: true
