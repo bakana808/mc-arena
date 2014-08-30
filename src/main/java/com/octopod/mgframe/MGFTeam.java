@@ -18,7 +18,7 @@ public enum MGFTeam {
 
     private int id;
     private String name;
-    //TODO: abstract this class
+    //TODO: abstract this classes
     private ChatColor color;
 
     private MGFTeam(int id, String name, ChatColor color) {

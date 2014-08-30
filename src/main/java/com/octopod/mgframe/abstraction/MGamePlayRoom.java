@@ -1,19 +1,19 @@
-package com.octopod.mgframe.room;
+package com.octopod.mgframe.abstraction;
 
-import com.octopod.mgframe.MGFPlayer;
+import com.octopod.mgframe.abstraction.MGamePlayer;
 
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public abstract class MGFRoom {
+public abstract class MGamePlayRoom {
 
-    public MGFRoom() {r_reset();}
+    public MGamePlayRoom() {r_reset();}
 
     public abstract void r_reset();
 
-    public abstract void r_player_bring(MGFPlayer player);
+    public abstract void r_player_bring(MGamePlayer player);
 
-    public abstract void r_player_kick(MGFPlayer player, String reason);
+    public abstract void r_player_kick(MGamePlayer player, String reason);
 
     /**
      *  Changes the map. Doesn't work if the world is already in use by another room.

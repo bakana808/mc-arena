@@ -2,10 +2,7 @@ package com.octopod.mgframe.commandhelper;
 
 import com.laytonsmith.abstraction.MCCommandSender;
 import com.laytonsmith.core.*;
-import com.laytonsmith.core.constructs.Construct;
-import com.laytonsmith.core.constructs.IVariable;
-import com.laytonsmith.core.constructs.IVariableList;
-import com.laytonsmith.core.constructs.Target;
+import com.laytonsmith.core.constructs.*;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.environments.Environment.EnvironmentImpl;
@@ -25,6 +22,7 @@ import java.util.Map;
 public class MethodScript {
 
     private Environment environment = MSUtils.createEnvironment();
+    private Map<String, Procedure> procs = null;
     private ParseTree compiled;
 	private Script script = new Script(null, null);
 
@@ -102,27 +100,28 @@ public class MethodScript {
      * be executed during this method.
      * @return a map of procedures from this script
      */
-    public Map<String, Procedure> getProcedures(boolean executeIfEmpty) {
-        Map<String, Procedure> procs = getProcedures();
-        if(procs.size() == 0 && executeIfEmpty) {
-            execute();
-            return getProcedures();
+    public Map<String, Procedure> getProcedures() {
+        if(procs == null) {
+            procs = executeEnvironmentChange().getEnv(GlobalEnv.class).GetProcs();
         }
         return procs;
-    }
-
-    public Map<String, Procedure> getProcedures() {
-        return getProcedures(true);
     }
 
     /**
      * Include procedures into this script.
      * @param newProcs a map of procedures to include in this script.
      */
-    public void include(Map<String, Procedure> newProcs) {
-        Map<String, Procedure> procs = getProcedures(false);
+    public MethodScript include(Map<String, Procedure> newProcs) {
         procs.putAll(newProcs);
+        environment.getEnv(GlobalEnv.class).SetProcs(procs);
+        return this;
+    }
+
+    public MethodScript include(String name, Procedure proc) {
+        Map<String, Procedure> procs = getProcedures();
+        procs.put(name, proc);
         getEnvironment().getEnv(GlobalEnv.class).SetProcs(procs);
+        return this;
     }
 
     /**
@@ -162,6 +161,10 @@ public class MethodScript {
         }
     }
 
+    public String getSource() {
+        return compiled.getTarget().file().toString();
+    }
+
 	public CommandHelperEnvironment getCmdHelperEnvironment() {
 		return environment.getEnv(CommandHelperEnvironment.class);
 	}
@@ -183,7 +186,7 @@ public class MethodScript {
 
     /**
      * Gets the environment's variable list.
-     * @return The IVariableList.
+     * @return the IVariableList.
      */
     public IVariableList getVariableList() {
         return getGlobalEnvironment().GetVarList();
@@ -199,8 +202,28 @@ public class MethodScript {
     }
 
     public Construct execute(MethodScriptComplete done) {
-		return MethodScriptCompiler.execute(compiled, environment, done, script);
-	}
+        try {
+            return MethodScriptCompiler.execute(compiled, environment.clone(), done, script);
+        } catch (CloneNotSupportedException e) {
+            return CVoid.VOID;
+        }
+    }
+
+    /**
+     * Executes the code to return the modified Environment after it has run.
+     * @return the Environment after the code has run
+     */
+    private Environment executeEnvironmentChange() {
+        Environment clone;
+        try {
+            clone = environment.clone();
+            MethodScriptCompiler.execute(compiled, clone, null, script);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            return environment;
+        }
+
+    }
 
 	public Thread executeAsync(final MethodScriptComplete done) {
 		Thread thread = new Thread()

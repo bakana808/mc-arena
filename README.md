@@ -29,8 +29,8 @@ Prototype Flow:
       - Jumppads
 - Adding Gamemodes
   - Static gamemode behavior
-    - Pregame
-    - A freshly started gamemode on a map will start in a "warmup" mode, where score and points are always 0. (setting the points/score is ignored)
+    - Pregame (Warmup)
+      - A freshly started gamemode on a map will start in a "warmup" mode, where score and points are always 0. (setting the points/score is ignored)
       - During warmup mode, players would use a /ready command or similar, where >50% of players being ready would start the game
       - Optional timer, so the game starts whether they're ready or not (only starts if the minimal player size for that game is met)
       - A method could be made to let gamemodes have different behaviors on whether it is warmup mode or not.
@@ -74,6 +74,7 @@ Prototype Flow:
   - Static Player Behavior
     - Player hurt/deaths will be overridden by the plugin as long as they're in a game
     - Inventories are never saved as long as they're in a game
+    - When a player "dies", they will instantly respawned as a temporary spectator
   - Configuration
     - Class Name
     - Walking Speed

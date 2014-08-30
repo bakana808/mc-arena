@@ -10,7 +10,7 @@ public class Configuration {
 	public void load() {}
 
 	/**
-	 * The list of world names to use in the game
+	 * The list of world names to use in the gamemode
 	 */
 	private List<String> mapRotation;
 
