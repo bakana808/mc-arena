@@ -3,20 +3,20 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>mgframe</groupId>
-    <artifactId>mgframe</artifactId>
+    <groupId>arenacore</groupId>
+    <artifactId>arenacore</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>MGFrame</name>
+    <name>ArenaCore</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/TheOctopod/MGFrame.git</connection>
-        <developerConnection>scm:git:https://github.com/TheOctopod/MGFrame.git</developerConnection>
-        <url>scm:git:https://github.com/TheOctopod/MGFrame</url>
+        <connection>scm:git:https://github.com/TheOctopod/ArenaCore.git</connection>
+        <developerConnection>scm:git:https://github.com/TheOctopod/ArenaCore.git</developerConnection>
+        <url>scm:git:https://github.com/TheOctopod/ArenaCore</url>
     </scm>
 
     <build>
@@ -30,6 +30,54 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <finalName>${project.name}</finalName>
+                    <shadedArtifactAttached>false</shadedArtifactAttached>
+                    <minimizeJar>true</minimizeJar>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                        <includes>
+                            <!--<include>com.octopod:octal</include>-->
+                            <include>org.apache.commons:commons-io</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>com.octopod:octal</artifact>
+                            <includes>
+                            </includes>
+                        </filter>
+                        <filter>
+                            <artifact>org.apache.commons:commons-io:jar:*</artifact>
+                            <includes>
+                                <include>org/apache/commons/io/FilenameUtils.class</include>
+                            </includes>
+                        </filter>
+                    </filters>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.octopod.octal</pattern>
+                            <shadedPattern>com.octopod.lib.octal</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.apache.commons.io</pattern>
+                            <shadedPattern>com.octopod.lib.org.apache.commons.io</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -57,6 +105,10 @@
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -66,10 +118,20 @@
             <version>1.7.10-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.7.10-R0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <!--<dependency>
             <groupId>com.octopod</groupId>
             <artifactId>octal</artifactId>
             <version>0.1.1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>

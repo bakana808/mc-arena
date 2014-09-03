@@ -1,5 +1,5 @@
 name: MGFrame
-main: com.octopod.mgframe.MGFramePlugin
+main: com.octopod.arenacore.ArenaCorePlugin
 version: 0.0.1
 softdepend: ['CommandHelper']
 permissions:
