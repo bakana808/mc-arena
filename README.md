@@ -1,14 +1,54 @@
-MGFrame
-========
+ArenaCore
+======
 
-Prototype Flow:
-====
-- Preload
-  - Find and cache all worldnames (in the world folder) somewhere
-  - Initialize all Bukkit-specific interfaces
-  - Initialize configuration
-  - Final check method to test if everything is loaded correctly, disable if it fails
+A compiled code / script hybrid minigame framework.
 
+Prototype Goals:
+------
+- [x] Start Weapon Scripts
+- [x] Start Class Scripts
+- [ ] Start Gamemode Scripts
+- [ ] Start Map Scripts
+- [ ] In-game Map Editing Commands
+- [ ] Game Starting/Joining Commands
+
+Weapon Script
+------
+Tools that players can use to do stuff.
+All weapon scripts are compiled when the plugin loads.
+CommandHelper scripts will overwrite procedures as "events", and all procedures will run with the player as the executor.
+
+CommandHelper Procedures:
+`_config(@config)`: `@config` is an array containing the script's settings. Modify as needed and return the array.
+
+`_primaryAttack()`: Runs when the player RIGHT-CLICKS with the weapon.
+
+`_secondaryAttack()`: Runs when the player LEFT-CLICKS with the weapon.
+
+`_dropWeapon()`: Runs when the player drops their weapon.
+
+`_pickupWeapon()`: Runs when the player obtains the weapon.
+
+Class Script
+------
+Defines player behavior, such as health and walking speed, but also overwrites certain actions.
+CommandHelper scripts will overwrite procedures as "events", and all procedures will run with the player as the executor.
+
+CommandHelper Procedures:
+`_config(@config)`: `@config` is an array containing the script's settings. Modify as needed and return the array.
+
+`_flyOn()`: Runs when the player starts flying.
+
+`_flyOff()`: Runs when the player stops flying.
+
+`_primaryAttack()`: Runs when the player RIGHT-CLICKS. (Note: This will only work when looking at a block)
+
+`_secondaryAttack()`: Runs when the player LEFT-CLICKS.
+
+`_hurt()`: Runs when the player is damaged.
+
+Goals
+------
 - Adding Maps (maps/)
   - Configured maps rendered unusuable if the world it was made for doesn't exist
 

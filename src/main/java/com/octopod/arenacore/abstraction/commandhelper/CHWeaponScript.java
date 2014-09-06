@@ -3,13 +3,10 @@ package com.octopod.arenacore.abstraction.commandhelper;
 import com.laytonsmith.core.Procedure;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.*;
-import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
-import com.octopod.arenacore.ArenaCore;
-import com.octopod.arenacore.LoggerInterface;
 import com.octopod.arenacore.abstraction.ArenaPlayer;
-import com.octopod.arenacore.abstraction.ArenaWeapon;
-import com.octopod.arenacore.abstraction.bukkit.BukkitGamePlayer;
+import com.octopod.arenacore.abstraction.ArenaWeaponConfig;
+import com.octopod.arenacore.abstraction.ArenaWeaponScript;
 import com.octopod.arenacore.commandhelper.MethodScript;
 
 import java.util.ArrayList;
@@ -19,114 +16,106 @@ import java.util.Map;
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class CHWeaponScript implements ArenaWeapon.Script{
+public class CHWeaponScript extends CHScript implements ArenaWeaponScript {
 
-	private MethodScript script;
-	private Procedure pAttackProc, sAttackProc, configProc;
-	//private MethodScript configScript = null;
+	@Override
+	public String[] requiredProcedures() {
+		return new String[] {
+				"_config",
+				"_primaryAttack",
+				"_secondaryAttack",
+				"_pickupWeapon",
+				"_dropWeapon"
+		};
+	}
 
-	private ArenaWeapon.Config config = null;
+	private static List<Construct> NO_ARGS = new ArrayList<>();
+
+	private Procedure dropWeaponProc, pickupWeaponProc, pAttackProc, sAttackProc, configProc;
+
+	private ArenaWeaponConfig config = null;
 
     public CHWeaponScript(MethodScript script)
     {
-		this.script = script;
+		super(script.cloneEnvironment());
+
         Map<String, Procedure> procs = script.getProcedures();
+
 		if(procs.containsKey("_primaryAttack")) {
-			pAttackProc = procs.get("_primaryAttack");
+			this.pAttackProc = procs.get("_primaryAttack");
 		}
 
 		if(procs.containsKey("_secondaryAttack")) {
-			sAttackProc = procs.get("_secondaryAttack");
+			this.sAttackProc = procs.get("_secondaryAttack");
 		}
 
 		if(procs.containsKey("_config")) {
-			//configScript = new MethodScript("_config(@options)").include("_config", procs.get("_config"));
-			configProc = procs.get("_config");
+			this.configProc = procs.get("_config");
 		}
 
-		config = getConfig(new ArenaWeapon.Config());
+		if(procs.containsKey("_dropWeapon")) {
+			this.dropWeaponProc = procs.get("_dropWeapon");
+		}
+
+		if(procs.containsKey("_pickupWeapon")) {
+			this.pickupWeaponProc = procs.get("_pickupWeapon");
+		}
+
+		//== LOAD CONFIG ==//
+
+		config = new ArenaWeaponConfig();
+		if(configProc != null)
+		{
+			Target t = Target.UNKNOWN;
+			CArray options = configToArray(config, t);
+			List<Construct> args = new ArrayList<>();
+			args.add(options);
+
+			try {
+				config = arrayToConfig((CArray)configProc.execute(args, script.cloneEnvironment(), t), t);
+			} catch (ConfigRuntimeException e) {
+				printException(e);
+			}
+		}
+    }
+
+	private CArray listToArray(List<Construct> arguments)
+	{
+		CArray array = new CArray(Target.UNKNOWN);
+		for(Construct c: arguments) {
+			array.push(c);
+		}
+		return array;
+	}
+
+    @Override
+    public void secondaryAttack(final ArenaPlayer player)
+	{
+        execute(player, sAttackProc, NO_ARGS);
     }
 
     @Override
-    public void secondaryAttack(ArenaPlayer player)
+    public void primaryAttack(final ArenaPlayer player)
 	{
-        if(sAttackProc != null && player instanceof BukkitGamePlayer)
-		{
-			final List<Construct> args = new ArrayList<>();
-			final Environment e = script.cloneEnvironment();
-			args.add(new CString(player.getName(), Target.UNKNOWN));
-
-			new Thread() {
-				@Override
-				public void run() {
-					try {
-						sAttackProc.execute(args, e, Target.UNKNOWN);
-					} catch (ConfigRuntimeException e) {
-						printException(e);
-					}
-				}
-			}.start();
-        }
-    }
-
-    @Override
-    public void primaryAttack(ArenaPlayer player)
-	{
-		if(pAttackProc != null && player instanceof BukkitGamePlayer)
-		{
-			final List<Construct> args = new ArrayList<>();
-			final Environment e = script.cloneEnvironment();
-			args.add(new CString(player.getName(), Target.UNKNOWN));
-
-			new Thread() {
-				@Override
-				public void run() {
-					try {
-						pAttackProc.execute(args, e, Target.UNKNOWN);
-					} catch (ConfigRuntimeException e) {
-						printException(e);
-					}
-				}
-			}.start();
-		}
+		execute(player, pAttackProc, NO_ARGS);
     }
 
 	@Override
 	public void dropWeapon(ArenaPlayer player)
 	{
-
+		execute(player, dropWeaponProc, NO_ARGS);
 	}
 
 	@Override
-	public ArenaWeapon.Config getConfig(ArenaWeapon.Config defaults)
+	public void pickupWeapon(ArenaPlayer player)
 	{
-		if(config != null) return config;
-		if(configProc != null)
-		{
-			Target t = Target.UNKNOWN;
-			CArray options = configToArray(defaults, t);
-			List<Construct> args = new ArrayList<>();
-			args.add(options);
-
-			try {
-				return arrayToConfig((CArray)configProc.execute(args, script.cloneEnvironment(), t), t);
-			} catch (ConfigRuntimeException e) {
-				printException(e);
-			}
-
-			//Get the changes in the @options array, after it may or may not be changed during execution
-			//return arrayToConfig((CArray)configScript.getVariable("@options"), t);
-		}
-		return defaults;
+		execute(player, pickupWeaponProc, NO_ARGS);
 	}
 
-	public static void printException(ConfigRuntimeException e) {
-		LoggerInterface logger = ArenaCore.getLogger();
-		logger.broadcast("&8[&6ACore&8] &cException running CH script " + e.getSimpleFile() + "! &e(L" + e.getLineNum() + ")");
-		logger.broadcast("&8[&6ACore&8] &c" + e.getExceptionType().getName() + ": &7" + e.getMessage());
-	}
+	@Override
+	public ArenaWeaponConfig getConfig() {return config;}
 
-	public static CArray configToArray(ArenaWeapon.Config config, Target t)
+	public static CArray configToArray(ArenaWeaponConfig config, Target t)
 	{
 		CArray array = new CArray(t);
 		CArray description = new CArray(t);
@@ -141,9 +130,9 @@ public class CHWeaponScript implements ArenaWeapon.Script{
 		return array;
 	}
 
-	public static ArenaWeapon.Config arrayToConfig(CArray array, Target t)
+	public static ArenaWeaponConfig arrayToConfig(CArray array, Target t)
 	{
-		ArenaWeapon.Config config = new ArenaWeapon.Config();
+		ArenaWeaponConfig config = new ArenaWeaponConfig();
 		config.name = array.get("name", t).val();
 		config.author = array.get("author", t).val();
 

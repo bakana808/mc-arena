@@ -57,7 +57,6 @@ public class MethodScript {
 		}
 
 		compiled = MethodScriptCompiler.compile(MethodScriptCompiler.lex(ms, source, true));
-		MethodScriptCompiler.registerAutoIncludes(this.environment, null);
 	}
 
 	/**
@@ -292,6 +291,7 @@ public class MethodScript {
 			env = externalEnv;
 		}
 
+		MethodScriptCompiler.registerAutoIncludes(this.environment, null);
 		Construct ret = MethodScriptCompiler.execute(compiled, env, done, null);
 
 		if(externalEnv == null)

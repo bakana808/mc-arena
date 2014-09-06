@@ -1,6 +1,7 @@
 package com.octopod.arenacore.abstraction;
 
-import java.util.ArrayList;
+import com.octopod.arenacore.chatbuilder.ChatUtils;
+
 import java.util.List;
 
 /**
@@ -8,85 +9,71 @@ import java.util.List;
  */
 public class ArenaWeapon {
 
-	public static class Config
-	{
-		public String name = "[UNKNOWN WEAPON]";
-		public String author = "[UNKNOWN AUTHOR]";
-		public List<String> description = new ArrayList<>();
-		public int itemType = 1;
-		public int itemData = 0;
-	}
-
-	public static interface Script
-	{
-		/**
-		 * Runs when the player left-clicks with this weapon equipped
-		 * @param player
-		 */
-		public void secondaryAttack(ArenaPlayer player);
-
-		/**
-		 * Runs when the player right-clicks with this weapon equipped
-		 * (Runs every tick when held down)
-		 * @param player
-		 */
-		public void primaryAttack(ArenaPlayer player);
-
-		/**
-		 * Runs when the player drops their weapon
-		 * @param player
-		 * @return
-		 */
-		public void dropWeapon(ArenaPlayer player);
-
-		public ArenaWeapon.Config getConfig(ArenaWeapon.Config defaults);
-	}
-
 	private ArenaPlayer owner;
+	private int slot;
 
     /**
      * The interface this weapon will use when firing.
      */
-	private ArenaWeapon.Script script;
+	private ArenaWeaponScript script;
 
-	private ArenaWeapon.Config config = null;
-
-    private int ammo = 0;
+	private int maxAmmo;
+    private int ammo;
 
     /**
      * At what UNIX time they can fire their weapon (right-click)
      */
     private long nextFire = 0;
 
-    public ArenaWeapon(ArenaPlayer owner, ArenaWeapon.Script script) {
-		this.owner = owner;
-        this.script = script;
+    public ArenaWeapon(int slot, ArenaPlayer owner, ArenaWeaponScript script) {
+		this(slot, owner, script, null);
     }
+
+	public ArenaWeapon(int slot, ArenaPlayer owner, ArenaWeaponScript script, Integer ammo) {
+		this.slot = slot;
+		this.owner = owner;
+		this.script = script;
+
+		this.maxAmmo = getConfig().maxAmmo;
+		//Set ammo to configured amount if null, else set to provided ammo amount
+		setAmmo(ammo == null ? getConfig().ammo : ammo);
+	}
 
 	public ArenaPlayer getOwner() {return owner;}
 
-    public void secondaryAttack() {
-		if(canFire())
-        script.secondaryAttack(owner);
+    public void scriptSecondaryAttack() {
+		if(canFire()) {
+			script.secondaryAttack(owner);
+			rename(getDisplayName());
+		}
     }
 
-    public void primaryAttack() {
-		if(canFire())
-        script.primaryAttack(owner);
+    public void scriptPrimaryAttack() {
+		if(canFire()) {
+			script.primaryAttack(owner);
+			rename(getDisplayName());
+		}
     }
 
-	public ArenaWeapon.Config initializeConfig(ArenaWeapon.Config defaults) {
-		return script.getConfig(defaults);
+	public void scriptDropWeapon() {
+		script.dropWeapon(owner);
 	}
 
-	public ArenaWeapon.Config getConfig() {
-		if(config == null) return config = initializeConfig(new ArenaWeapon.Config());
-		return config;
+	public ArenaWeaponConfig getConfig() {
+		return script.getConfig();
 	}
 
     public int getAmmo() {return ammo;}
-    public void addAmmo(int i) {ammo += i;}
-    public void setAmmo(int i) {ammo = i;}
+
+    public void addAmmo(int i) {
+		ammo += i;
+		rename(getDisplayName());
+	}
+    public void setAmmo(int i) {
+		ammo = Math.min(maxAmmo, i);
+		rename(getDisplayName());
+	}
+	public boolean hasAmmo() {return ammo == -1 || ammo > 0;}
 
     public String getName() {
         return getConfig().name;
@@ -113,7 +100,7 @@ public class ArenaWeapon {
 	 * @return
 	 */
 	public boolean canFire() {
-		return System.currentTimeMillis() >= nextFire;
+		return ammo > 0 && System.currentTimeMillis() >= nextFire;
 	}
 
 	/**
@@ -122,5 +109,13 @@ public class ArenaWeapon {
 	 */
 	public void setNextFire(long time) {
 		nextFire = time;
+	}
+
+	public String getDisplayName() {
+		String sAmmo = ammo == -1 ? "INF" : ammo + "/" + maxAmmo;
+		return ChatUtils.colorize("&8--[ &f" + getName() + " &8| &f" + sAmmo + " &8]--");
+	}
+	private void rename(String name) {
+		owner.renameItem(slot, name);
 	}
 }

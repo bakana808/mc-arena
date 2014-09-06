@@ -45,15 +45,15 @@ public class ArenaCorePlugin extends JavaPlugin
 		pluginFolder = this.getDataFolder();
 
         if(commandHelperEnabled) {
-            logger.broadcast("&8[&6MGF&8] &aFound CommandHelper!");
+            logger.broadcast("&8[&6ArCore&8] &aFound CommandHelper!");
         }
 
 		Bukkit.getServer().getPluginManager().registerEvents(new BukkitListener(), this);
 
-		ArenaCore.scanWeapons();
+		ArenaCore.scanWeaponScripts();
 
         finalCheck();
-        logger.broadcast("&8[&6MGF&8] &aMGF v." + this.getDescription().getVersion() + " loaded!");
+        logger.broadcast("&8[&6ArCore&8] &aArenaCore v." + this.getDescription().getVersion() + " loaded!");
 	}
 
 	@Override
