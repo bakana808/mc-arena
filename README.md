@@ -19,6 +19,7 @@ All weapon scripts are compiled when the plugin loads.
 CommandHelper scripts will overwrite procedures as "events", and all procedures will run with the player as the executor.
 
 CommandHelper Procedures:
+
 `_config(@config)`: `@config` is an array containing the script's settings. Modify as needed and return the array.
 
 `_primaryAttack()`: Runs when the player RIGHT-CLICKS with the weapon.
@@ -35,6 +36,7 @@ Defines player behavior, such as health and walking speed, but also overwrites c
 CommandHelper scripts will overwrite procedures as "events", and all procedures will run with the player as the executor.
 
 CommandHelper Procedures:
+
 `_config(@config)`: `@config` is an array containing the script's settings. Modify as needed and return the array.
 
 `_flyOn()`: Runs when the player starts flying.
