@@ -2,11 +2,12 @@ package com.octopod.arenacore;
 
 import com.laytonsmith.core.Procedure;
 import com.laytonsmith.core.exceptions.ConfigCompileException;
-import com.octopod.arenacore.abstraction.ArenaClassDefaultScript;
 import com.octopod.arenacore.abstraction.ArenaPlayer;
-import com.octopod.arenacore.abstraction.ArenaWeaponScript;
-import com.octopod.arenacore.abstraction.commandhelper.CHWeaponScript;
-import com.octopod.arenacore.commandhelper.MethodScript;
+import com.octopod.arenacore.commandhelper.MScript;
+import com.octopod.arenacore.items.SnowballGun;
+import com.octopod.arenacore.script.ArenaClassDefaultScript;
+import com.octopod.arenacore.script.ArenaItemScript;
+import com.octopod.arenacore.script.commandhelper.CHItemScript;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -21,7 +22,7 @@ public class ArenaCore {
 
     private static List<ArenaPlayer> players = new ArrayList<>();
 
-	private static Map<String, ArenaWeaponScript> weaponScripts = null;
+	private static Map<String, ArenaItemScript> itemScripts = null;
 
     public static void addPlayer(ArenaPlayer player) {
         players.add(player);
@@ -71,15 +72,21 @@ public class ArenaCore {
 		return ArenaCorePlugin.getLoggerIF();
 	}
 
-	public static ArenaWeaponScript getWeaponScript(String ID) {
-		return weaponScripts.get(ID);
+	public static ArenaItemScript getItemScript(String ID) {
+		return itemScripts.get(ID);
 	}
 
-	public static void giveWeapon(ArenaWeaponScript script, ArenaPlayer player) {
+	public static void addItemScript(String ID, ArenaItemScript script)
+	{
+		itemScripts.put(ID, script);
+		getLogger().broadcast("&a[LOADED] Item added under ID " + ID);
+	}
+
+	public static void giveWeapon(ArenaItemScript script, ArenaPlayer player) {
 		giveWeapon(player.getHandSlot(), script, player);
 	}
 
-	public static void giveWeapon(int slot, ArenaWeaponScript script, ArenaPlayer player) {
+	public static void giveWeapon(int slot, ArenaItemScript script, ArenaPlayer player) {
 		player.giveWeapon(slot, script);
 	}
 
@@ -91,18 +98,19 @@ public class ArenaCore {
 		getLogger().broadcast("&7== SCANNING WEAPON SCRIPTS ==");
 		if(files == null) return;
 
-		weaponScripts = new HashMap<>();
+		itemScripts = new HashMap<>();
 
 		for(File file: files) {
 
 			String filename = file.getName();
 			if(FilenameUtils.getExtension(filename).equalsIgnoreCase("ms"))
 			{
-				getLogger().broadcast("&aReading weapon script &f" + filename + "&a... (commandhelper)");
+				getLogger().broadcast("&aReading Item script &f" + filename + "&a... (commandhelper)");
 				try
 				{
-					MethodScript script = new MethodScript(file);
-					CHWeaponScript weaponScript = new CHWeaponScript(script);
+					MScript script = new MScript(file);
+					script.setDynamicEnv(true);
+					CHItemScript weaponScript = new CHItemScript(script);
 					Map<String, Procedure> procs = script.getProcedures();
 					for(String procName: weaponScript.requiredProcedures()) {
 						if(!procs.containsKey(procName)) {
@@ -111,8 +119,7 @@ public class ArenaCore {
 					}
 					//Weapon ID is the file's base name, whatever that is
 					String weapID = FilenameUtils.getBaseName(filename);
-					weaponScripts.put(weapID, weaponScript);
-					getLogger().broadcast("&a - Weapon added under ID " + weapID);
+					addItemScript(weapID, weaponScript);
 				} catch (IOException e) {
 					getLogger().broadcast("&c - ERROR: Unable to read this file!");
 				} catch (ConfigCompileException e) {
@@ -121,6 +128,8 @@ public class ArenaCore {
 				}
 			}
 		}
+
+		addItemScript("snowball", new SnowballGun());
 
 	}
 

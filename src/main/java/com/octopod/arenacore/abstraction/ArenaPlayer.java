@@ -1,6 +1,9 @@
 package com.octopod.arenacore.abstraction;
 
 import com.octopod.arenacore.ArenaTeam;
+import com.octopod.arenacore.Vector;
+import com.octopod.arenacore.script.ArenaClassScript;
+import com.octopod.arenacore.script.ArenaItemScript;
 
 import java.util.List;
 
@@ -8,6 +11,10 @@ import java.util.List;
  * @author Octopod - octopodsquad@gmail.com
  */
 public abstract class ArenaPlayer {
+
+	public abstract Vector forward(double offsetYaw, double offsetPitch);
+
+	public abstract Vector loc();
 
 	public abstract void setExpBar(float exp);
 
@@ -21,7 +28,7 @@ public abstract class ArenaPlayer {
 
 	public abstract int getHealth();
 
-	public abstract void hurtDirectly(int damage);
+	public abstract void hurt(int damage);
 
 	public abstract void setWalkSpeed(float speed);
 
@@ -52,6 +59,21 @@ public abstract class ArenaPlayer {
 
     //=== No more abstract methods ===//
 
+	public Vector forward()
+	{
+		return forward(0, 0);
+	}
+
+	public Vector head()
+	{
+		return loc().add(0, 2.8, 0);
+	}
+
+	public Vector eyes()
+	{
+		return loc().add(0, 2.62, 0);
+	}
+
 	private float shield;
 	private float maxShield;
 
@@ -63,7 +85,7 @@ public abstract class ArenaPlayer {
     /**
      * The weapons the player is holding
      */
-    private ArenaWeapon[] weapons = new ArenaWeapon[7];
+    private ArenaItem[] weapons = new ArenaItem[7];
 
     /**
      * The room the player is in (null if not in any room)
@@ -80,7 +102,7 @@ public abstract class ArenaPlayer {
 
     public Object getHandle() {return null;}
 
-    public ArenaWeapon getHandWeapon() {
+    public ArenaItem getHandWeapon() {
         return weapons[getHandSlot()];
     }
 
@@ -93,7 +115,7 @@ public abstract class ArenaPlayer {
      * @param slot
      * @param weapon
      */
-    public void setWeapon(int slot, ArenaWeapon weapon) {
+    public void setWeapon(int slot, ArenaItem weapon) {
         weapons[slot] = weapon;
     }
 
@@ -101,10 +123,10 @@ public abstract class ArenaPlayer {
      * Gives a player a weapon.
      * @param slot
      */
-    public void giveWeapon(int slot, ArenaWeaponScript script) {
-		ArenaWeapon weapon = new ArenaWeapon(slot, this, script);
+    public void giveWeapon(int slot, ArenaItemScript script) {
+		ArenaItem weapon = new ArenaItem(slot, this, script);
         setWeapon(slot, weapon);
-        giveItem(slot, weapon.getItemType(), weapon.getItemData(), weapon.getDisplayName(), null);
+        giveItem(slot, weapon.getItemType(), weapon.getItemData(), weapon.getName(), null);
     }
 
 	public ArenaClass getPlayerClass() {
@@ -114,47 +136,17 @@ public abstract class ArenaPlayer {
 	public void setPlayerClass(ArenaClassScript script) {
 		clazz = new ArenaClass(this, script);
 		ArenaClassConfig config = clazz.getConfig();
-		setMaxHealth(config.maxHealth);
+		setMaxHealth(config.health_max);
 		setHealth(config.health);
-		setMaxShield(config.maxShield);
-		setShield(config.shield);
-		setWalkSpeed(config.walkSpeed);
-		setCanFly(config.canFly);
-		setHunger(config.canRun ? 20 : 3);
+		setWalkSpeed(config.walk_speed);
+		setCanFly(config.flying);
+		setHunger(config.food);
 	}
 
-	public void setShield(int shield) {
-		this.shield = shield;
-		setExpLevel(shield);
-		setExpBar((float)getShield() / (float)getMaxShield());
-	}
-
-	public void setMaxShield(int shield) {
-		this.maxShield = shield;
-		setExpBar((float)getShield() / (float)getMaxShield());
-	}
-
-	public int getShield() {
-		return (int)shield;
-	}
-
-	public int getMaxShield() {
-		return (int)maxShield;
-	}
-
-	public void hurt(int damage) {
-		if(getShield() >= damage) {
-			//Run a shield-damage script
-			setShield(getShield() - damage);
-		} else
-		if(getShield() == 0) {
-			//Run a hurt-directly script
-			hurtDirectly(damage);
-		} else {
-			//Run a shield-depleted script
-			int leftover = damage - getShield();
-			hurtDirectly(leftover);
-		}
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof ArenaPlayer && ((ArenaPlayer)obj).getID().equals(getID());
 	}
 
 }

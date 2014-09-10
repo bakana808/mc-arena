@@ -1,4 +1,4 @@
-package com.octopod.arenacore.abstraction.commandhelper;
+package com.octopod.arenacore.script.commandhelper;
 
 import com.octopod.arenacore.ArenaTeam;
 import com.octopod.arenacore.abstraction.ArenaMode;

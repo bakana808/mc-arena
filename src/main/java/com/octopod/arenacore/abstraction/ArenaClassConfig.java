@@ -1,21 +1,22 @@
 package com.octopod.arenacore.abstraction;
 
+import com.octopod.arenacore.ArenaConfiguration;
+
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class ArenaClassConfig
+public class ArenaClassConfig implements ArenaConfiguration
 {
-	String name = "Default";
-	String author = "[UNKNOWN AUTHOR]";
+	public String name = "Default";
+	public String author = "";
 
-	int maxShield = 200;
-	int shield = 200;
+	public int health_max = 20;
+	public int health = 20;
 
-	int maxHealth = 20;
-	int health = 20;
+	public float walk_speed = 0.3f;
 
-	float walkSpeed = 0.3f;
+	public int food = 20;
+	public boolean hunger = false;
 
-	boolean canRun = true;
-	boolean canFly = true;
+	public boolean flying = true;
 }

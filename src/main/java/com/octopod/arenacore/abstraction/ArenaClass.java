@@ -1,5 +1,7 @@
 package com.octopod.arenacore.abstraction;
 
+import com.octopod.arenacore.script.ArenaClassScript;
+
 /**
  * @author Octopod - octopodsquad@gmail.com
  */

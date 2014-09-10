@@ -59,7 +59,7 @@ public class ArenaCorePlugin extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-
+		Hologram.killAll();
 	}
 
     public static File getWorldFolder() {return worldFolder;}

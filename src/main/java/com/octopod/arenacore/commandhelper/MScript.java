@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Octopod
  *         Created on 5/24/14
  */
-public class MethodScript {
+public class MScript {
 
 	/**
 	 * The environment that the script will use.
@@ -40,7 +40,7 @@ public class MethodScript {
     private Map<String, Procedure> procs = null;
 
 	/**
-	 * The compiled MethodScript.
+	 * The compiled MScript.
 	 */
     private ParseTree compiled;
 
@@ -51,7 +51,7 @@ public class MethodScript {
 
 		//Sets the environment to a default environment if null
 		if(environment == null) {
-			this.environment = MSUtils.createEnvironment();
+			this.environment = MScriptUtils.createEnvironment();
 		} else {
 			this.environment = environment;
 		}
@@ -60,33 +60,33 @@ public class MethodScript {
 	}
 
 	/**
-	 * Compiles MethodScript using a File as a source.
+	 * Compiles MScript using a File as a source.
 	 * @param source The source of the code, which will be shown if a CommandHelper exception is thrown
-	 * @param script The MethodScript to compile
+	 * @param script The MScript to compile
 	 * @param env The enviroment in which the code will be run under
 	 */
-	public MethodScript(String script, File source, Environment env) throws ConfigCompileException
+	public MScript(String script, File source, Environment env) throws ConfigCompileException
 	{
 		compile(script, source, env);
 	}
 
 	/**
-	 * Compiles MethodScript using UNKNOWN as the source. (just like the interpreter)
-	 * @param script The MethodScript to compile
+	 * Compiles MScript using UNKNOWN as the source. (just like the interpreter)
+	 * @param script The MScript to compile
 	 * @throws com.laytonsmith.core.exceptions.ConfigCompileException
 	 */
-    public MethodScript(String script) throws ConfigCompileException
+    public MScript(String script) throws ConfigCompileException
 	{
         compile(script, null, null);
     }
 
 	/**
-	 * Compiles MethodScript from a File, using the File as the source.
-	 * @param source The file to read MethodScript from.
+	 * Compiles MScript from a File, using the File as the source.
+	 * @param source The file to read MScript from.
 	 * @throws java.io.IOException
 	 * @throws com.laytonsmith.core.exceptions.ConfigCompileException
 	 */
-    public MethodScript(File source) throws IOException, ConfigCompileException
+    public MScript(File source) throws IOException, ConfigCompileException
 	{
         final StringBuilder script = new StringBuilder();
 
@@ -119,7 +119,7 @@ public class MethodScript {
 	 * @return the environment to be used.
 	 */
     public Environment getEnvironment() {
-		if(environment == null) environment = MSUtils.createEnvironment();
+		if(environment == null) environment = MScriptUtils.createEnvironment();
         return environment;
     }
 
@@ -158,7 +158,7 @@ public class MethodScript {
      * Include procedures into this script.
      * @param newProcs a map of procedures to include in this script.
      */
-    public MethodScript include(Map<String, Procedure> newProcs) {
+    public MScript include(Map<String, Procedure> newProcs) {
 		Map<String, Procedure> procs = getGlobalEnvironment().GetProcs();
         procs.putAll(newProcs);
 		getGlobalEnvironment().SetProcs(procs);
@@ -172,7 +172,7 @@ public class MethodScript {
 	 * @param proc
 	 * @return
 	 */
-    public MethodScript include(String name, Procedure proc) {
+    public MScript include(String name, Procedure proc) {
 		Map<String, Procedure> procs = getGlobalEnvironment().GetProcs();
         procs.put(name, proc);
         getGlobalEnvironment().SetProcs(procs);
@@ -184,7 +184,7 @@ public class MethodScript {
      * It would modify what certain functions return such as player().
      * @param executor The new executor.
      */
-    public MethodScript setExecutor(MCCommandSender executor) {
+    public MScript setExecutor(MCCommandSender executor) {
         getCmdHelperEnvironment().SetCommandSender(executor);
         return this;
     }
@@ -196,7 +196,7 @@ public class MethodScript {
      * @param varName The variable name. Should be prefixed by "@" most of the time.
      * @param con The Construct this variable should represent.
      */
-    public MethodScript setVariable(String varName, Construct con) {
+    public MScript setVariable(String varName, Construct con) {
         IVariable var = new IVariable(varName, con, Target.UNKNOWN);
         IVariableList vars = getVariableList();
         vars.set(var);
@@ -218,8 +218,12 @@ public class MethodScript {
     }
 
     public String getSource() {
-        return compiled.getTarget().file().toString();
+        return getTarget().file().toString();
     }
+
+	public Target getTarget() {
+		return compiled.getTarget();
+	}
 
 	public CommandHelperEnvironment getCmdHelperEnvironment() {
 		return getEnvironment().getEnv(CommandHelperEnvironment.class);
@@ -235,7 +239,7 @@ public class MethodScript {
      * so maybe you'd want to use setVariable() instead?
      * @param ivarList The IVariableList to use as the new variable list.
      */
-    public MethodScript setVariableList(IVariableList ivarList) {
+    public MScript setVariableList(IVariableList ivarList) {
         getGlobalEnvironment().SetVarList(ivarList);
         return this;
     }
@@ -314,7 +318,7 @@ public class MethodScript {
 	}
 
     @Deprecated
-    public MethodScript addEnvironmentImpl(EnvironmentImpl ienv) {
+    public MScript addEnvironmentImpl(EnvironmentImpl ienv) {
 		environment = environment.cloneAndAdd(ienv);
         return this;
     }

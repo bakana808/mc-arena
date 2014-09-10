@@ -1,41 +1,44 @@
-package com.octopod.arenacore.abstraction;
+package com.octopod.arenacore.script;
+
+import com.octopod.arenacore.abstraction.ArenaItemConfig;
+import com.octopod.arenacore.abstraction.ArenaPlayer;
 
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public interface ArenaWeaponScript {
+public interface ArenaItemScript {
 
 	/**
 	 * Gets the configuration of this script
 	 * @return
 	 */
-	public ArenaWeaponConfig getConfig();
+	public ArenaItemConfig getConfig();
 
 	/**
 	 * Runs when the player left-clicks with this weapon equipped
 	 * @param player
 	 */
-	public void secondaryAttack(ArenaPlayer player);
+	public void leftClickEvent(ArenaPlayer player);
 
 	/**
 	 * Runs when the player right-clicks with this weapon equipped
 	 * (Runs every tick when held down)
 	 * @param player
 	 */
-	public void primaryAttack(ArenaPlayer player);
+	public void rightClickEvent(ArenaPlayer player);
 
 	/**
 	 * Runs when the player picks up a weapon
 	 * @param player
 	 * @return
 	 */
-	public void pickupWeapon(ArenaPlayer player);
+	public boolean pickupEvent(ArenaPlayer player);
 
 	/**
 	 * Runs when the player drops their weapon
 	 * @param player
 	 * @return
 	 */
-	public void dropWeapon(ArenaPlayer player);
+	public boolean dropEvent(ArenaPlayer player);
 
 }

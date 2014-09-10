@@ -1,6 +1,11 @@
 package com.octopod.arenacore.abstraction.bukkit;
 
+import com.octopod.arenacore.Vector;
 import com.octopod.arenacore.abstraction.ArenaPlayer;
+import org.bukkit.Effect;
+import org.bukkit.EntityEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -10,11 +15,11 @@ import java.util.List;
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class BukkitGamePlayer extends ArenaPlayer {
+public class BukkitArenaPlayer extends ArenaPlayer {
 
     Player handle;
 
-    public BukkitGamePlayer(Player player) {
+    public BukkitArenaPlayer(Player player) {
         handle = player;
     }
 
@@ -26,6 +31,26 @@ public class BukkitGamePlayer extends ArenaPlayer {
 
     @Override
     public Object getHandle() {return handle;}
+
+	@Override
+	public Vector forward(double offsetYaw, double offsetPitch)
+	{
+		Location loc = handle.getLocation();
+		double pitch = Math.toRadians(loc.getPitch() + offsetPitch);
+		double yaw = Math.toRadians(loc.getYaw());
+		return new Vector(
+			- Math.sin(yaw) * Math.cos(pitch) + Math.cos(yaw) * Math.sin(offsetYaw),
+			- Math.sin(pitch),
+			+ Math.cos(yaw) * Math.cos(pitch) + Math.sin(yaw) * Math.sin(offsetYaw)
+		);
+	}
+
+	@Override
+	public Vector loc()
+	{
+		Location loc = handle.getLocation();
+		return new Vector(loc.getX(), loc.getY(), loc.getZ());
+	}
 
     @Override
     public int getHandSlot() {
@@ -68,8 +93,10 @@ public class BukkitGamePlayer extends ArenaPlayer {
 	}
 
 	@Override
-	public void hurtDirectly(int damage) {
-		setHealth(getHealth() - damage);
+	public void hurt(int damage) {
+		setHealth(Math.max(0, getHealth() - damage));
+		handle.playEffect(handle.getLocation(), Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
+		handle.playEffect(EntityEffect.HURT);
 	}
 
 	@Override

@@ -3,9 +3,9 @@ package com.octopod.arenacore.exceptions;
 /**
  * @author Octopod - octopodsquad@gmail.com
  */
-public class ACScriptException extends Exception {
+public class ArenaScriptCompileException extends Exception {
 
-    public ACScriptException(String message) {
+    public ArenaScriptCompileException(String message) {
         super(message);
     }
 
